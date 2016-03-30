@@ -29,6 +29,11 @@ import static org.decimal4j.dfloat.encode.Decimal64.isNaN;
 import static org.decimal4j.dfloat.encode.Decimal64.isZero;
 
 public final class Sign {
+
+    private Sign() {
+        throw new RuntimeException("No Sign for you!");
+    }
+
     /**
      * Copy the sign of b into a.
      *

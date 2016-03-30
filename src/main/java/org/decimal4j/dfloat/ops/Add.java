@@ -40,6 +40,10 @@ public final class Add {
     private static final String ADD = "add";
     private static final String SUB = "subtract";
 
+    private Add() {
+        throw new RuntimeException("No Add for you!");
+    }
+
     static enum OpMode{
         Add {
             @Override

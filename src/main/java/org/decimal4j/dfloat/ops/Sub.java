@@ -28,6 +28,10 @@ import org.decimal4j.dfloat.attribute.RoundingDirection;
 
 public final class Sub {
 
+    private Sub() {
+        throw new RuntimeException("No Sub for you!");
+    }
+
     public static long subtract(final long a, final long b) {
         return Add.add(a, Sign.flipSign(b), Attributes.DEFAULT, Add.OpMode.Subtract);
     }

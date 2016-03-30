@@ -38,6 +38,8 @@ public class Decimal64 {
 	public static final int MAX_EXPONENT = 384; /* maximum adjusted exponent */
 	public static final int MIN_EXPONENT = -383; /* minimum adjusted exponent */
 	public static final int EXPONENT_BIAS = 398; /* bias for the exponent */
+	public static final int MAX_EXPONENT_NOMINAL = MAX_EXPONENT - (MAX_PRECISION - 1);
+	public static final int MIN_EXPONENT_NOMINAL = MIN_EXPONENT - (MAX_PRECISION - 1);
 	public static final int MAX_STRING_LENGTH = 23; /* maximum string length */
 	private static final int DECECONL = 8; /* exp. continuation length */
 
@@ -49,8 +51,8 @@ public class Decimal64 {
 
 	public static final long ZERO	= 0x2238000000000000L;
 
-	public static final long MIN_NORMAL = 0x043c000000000000L;
-	public static final long MAX_NORMAL = 0x77ff8d7ea4c67fffL;
+	public static final long MIN_NORMAL = 0x043c000000000000L;//10^MIN_EXPONENT
+	public static final long MAX_NORMAL = 0x77ff8d7ea4c67fffL;//10^MAX_EXPONENT * (10-10^(1-MAX_PRECISION))
 
 	public static final long COEFF_CONT_MASK = 0x0003ffffffffffffL;
 	private static final long EXP_CONT_MASK =  0x03fc000000000000L;
@@ -157,6 +159,9 @@ public class Decimal64 {
 	public static final boolean isCanonical(final long dFloat) {
 		return Dpd.isCanonical(dFloat);
 	}
+	public static final long canonicalize(final long dFloat) {
+		return (dFloat & ~COEFF_CONT_MASK) | Dpd.canonicalize(dFloat);
+	}
 
 	/**
 	 * test for coefficient continuation being zero
@@ -183,6 +188,10 @@ public class Decimal64 {
 		return getExponentBiased(dFloat) - EXPONENT_BIAS;
 	}
 
+	public static final long zero(final long sign, final int exp) {
+		final int expBiased = exp + EXPONENT_BIAS;
+		return (sign & SIGN_BIT_MASK) | DECCOMBFROM[(expBiased >> DECECONL)<<4] | ((((long)expBiased) << 50) & EXP_CONT_MASK);
+	}
 	public static final long encode(final long sign, final int exp, final int msd, final long dpd) {
 		final int expBiased = exp + EXPONENT_BIAS;
 		return (sign & SIGN_BIT_MASK) | DECCOMBFROM[((expBiased >> DECECONL)<<4) + msd] | ((((long)expBiased) << 50) & EXP_CONT_MASK) | (dpd & COEFF_CONT_MASK);
@@ -220,6 +229,6 @@ public class Decimal64 {
 			System.out.println("0x" + Long.toHexString(encode(1, (int)e, 0, 1)) + "L");
 		}
 		System.out.println("MIN_NORMAL=\t" + Long.toHexString(encode(1, MIN_EXPONENT, 1, 0)));
-		System.out.println("MAX_NORMAL=\t" + Long.toHexString(encode(1, MAX_EXPONENT-(MAX_PRECISION-1), 9, 999999999999999L)));
+		System.out.println("MAX_NORMAL=\t" + Long.toHexString(encode(1, MAX_EXPONENT_NOMINAL, 9, 999999999999999L)));
 	}
 }
